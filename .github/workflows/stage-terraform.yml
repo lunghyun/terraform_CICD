@@ -90,7 +90,7 @@ jobs:
         }
 
         # Terraform 상태 관리를 위한 S3 버킷과 DynamoDB 테이블 이름
-        S3_BUCKET="mello-terraformstate"
+        S3_BUCKET="mello-terraform-state"
         DYNAMODB_TABLE="mello-terraform-state"
 
         # 버킷과 테이블의 존재 여부를 확인
