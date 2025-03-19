@@ -2,11 +2,11 @@ terraform {
  required_version = ">= 1.0.0, < 2.0.0"
 
   backend "s3" {
-    bucket = "jung9546-terraformstate"
+    bucket = "mello-terraformstate"
     key  = "dev/terraform/terraform.tfstate"
     region = "ap-northeast-2"
     encrypt = true
-    dynamodb_table = "jung9546-terraform-state"
+    dynamodb_table = "mello-terraform-state"
   }
 }
 
@@ -42,7 +42,7 @@ module "vpc" {
   #security_attachments_propagation = merge(var.security_attachments_propagation, var.security_attachments)
 }
 
-# module "jung9546-ec2" {
+# module "mello-ec2" {
 #   source              = "../modules/instance"
 
 #   stage        = var.stage

@@ -5,19 +5,19 @@ variable "stage"{
 }
 variable "servicename"{
   type = string
-  default = "jung9546"
+  default = "mello"
 }
 variable "tags"{
   type = map(string)
   default = {
-    "name" = "jung9546-db"
+    "name" = "mello-db"
   }
 }
 
 ##RDS
 variable "dbname" { #required
   type=string
-  default = "jung9546-db"
+  default = "mello-db"
 }
 variable "engine" {
   type=string

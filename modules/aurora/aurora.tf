@@ -1,5 +1,5 @@
 resource "aws_rds_cluster" "rds-cluster" {
-  cluster_identifier              = lower("aws-rds-cluster-dev-jung9546-aurora-jung9546-db")
+  cluster_identifier              = lower("aws-rds-cluster-dev-mello-aurora-mello-db")
   engine                          = var.engine #"aurora-mysql"
   engine_version                  = var.engine_version #"8.mysql_aurora"
   availability_zones              = [element(var.az, 0), element(var.az, 1)]
@@ -26,7 +26,7 @@ resource "aws_rds_cluster" "rds-cluster" {
 
 resource "aws_rds_cluster_instance" "rds-instance" {
   count                      = var.rds_instance_count
-  identifier                  = lower("aws-rds-instance-dev-jung9546-aurora-jung9546db-${count.index}")
+  identifier                  = lower("aws-rds-instance-dev-mello-aurora-mellodb-${count.index}")
   cluster_identifier          = aws_rds_cluster.rds-cluster.id
   engine                     = var.engine
   engine_version             = var.engine_version
@@ -52,7 +52,7 @@ resource "aws_db_subnet_group" "rds-subnet-group" {
   subnet_ids  = var.subnet_ids
 }
 resource "aws_rds_cluster_parameter_group" "rds-cluster-parameter-group" {
-  name=lower("aws-rds-cluster-parameter-group-dev-jung9546-aurora-jung9546-db")
+  name=lower("aws-rds-cluster-parameter-group-dev-mello-aurora-mello-db")
   family      = var.family #"aurora-mysql8"
   description = "RDS cluster parameter group"
   parameter {
@@ -160,7 +160,7 @@ resource "aws_rds_cluster_parameter_group" "rds-cluster-parameter-group" {
 
 
 resource "aws_db_parameter_group" "rds-instance-parameter-group" {
-  name        = lower("aws-rds-instance-parameter-group-dev-jung9546-aurora-jung9546-db")
+  name        = lower("aws-rds-instance-parameter-group-dev-mello-aurora-mello-db")
   family = var.family #"aurora-postgresql12"
   parameter {
     name  = "autocommit"

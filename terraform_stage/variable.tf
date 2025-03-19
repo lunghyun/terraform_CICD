@@ -8,12 +8,12 @@ variable "stage" {
 }
 variable "servicename" {
   type = string
-  default = "terraform_jung9546"
+  default = "terraform_mello"
 }
 variable "tags" {
   type = map(string)
   default = {
-    "name" = "jung9546_VPC"
+    "name" = "mello_VPC"
   }
 }
 
@@ -100,7 +100,7 @@ variable "instance_ebs_volume" {
 ##RDS
 variable "rds_dbname" {
   type = string
-  default = "jung9546"
+  default = "mello"
 }
 variable "rds_instance_count" {
   type = string
