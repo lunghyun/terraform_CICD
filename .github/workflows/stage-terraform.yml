@@ -145,7 +145,7 @@ jobs:
         run: |
           cd terraform_stage; terraform init \
             -backend-config="region=ap-northeast-2" \
-            -backend-config="bucket=mello-terraform-state" \
+            -backend-config="bucket=mello-terraform" \
             -backend-config="key=stage/terraform/terraform.tfstate"
 
   backend_destroy:
@@ -172,7 +172,7 @@ jobs:
         run: |
           cd terraform_stage; terraform init \
             -backend-config="region=ap-northeast-2" \
-            -backend-config="bucket=mello-terraform-state" \
+            -backend-config="bucket=mello-terraform" \
             -backend-config="key=stage/terraform/terraform.tfstate"
 
       - name: Terraform Destroy
