@@ -35,7 +35,7 @@ resource "aws_s3_bucket_policy" "terraform_state_policy" {
     Statement = [{
       Sid       = "AllowSpecificRole"
       Effect    = "Allow"
-      Principal = { "AWS" : "arn:aws:iam::448049822514:role/mello.park" }
+      Principal = { "AWS" : "arn:aws:iam::448049822514:user/mello.park" }
       Action    = [
         "s3:GetBucketPolicy",
         "s3:ListBucket",
