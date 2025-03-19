@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - 'stage'
+      - 'main'
+    paths-ignore: 
+      - '**/stage-terraform.yml'
   pull_request:
     branches:
       - 'main'
