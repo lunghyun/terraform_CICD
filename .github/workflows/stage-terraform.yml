@@ -1,0 +1,184 @@
+name: 'Terraform'
+
+on:
+  push:
+    branches:
+      - 'stage'
+  pull_request:
+    branches:
+      - 'main'
+    paths-ignore:
+      - '**/stage-terraform.yml'
+  workflow_dispatch:
+    inputs:
+      confirm_destroy:
+        description: 'Confirm if you want to destroy the Terraform backend (type DESTROY to confirm)'
+        required: true
+        default: 'DESTROY'
+
+env:
+  AWS_REGION: ap-northeast-2   # AWS 리전을 설정
+
+jobs:
+  terraform:
+    name: 'Terraform'
+    runs-on: ubuntu-latest
+    environment: stage
+
+    # GitHub Actions 러너가 ubuntu-latest, macos-latest, windows-latest 중 어떤 것이든 Bash 셸을 사용합니다.
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+    # - name: Check base ref
+    #   if: github.ref == 'refs/heads/stage'
+    #   run: |
+    #     echo "Merging to stage from develop is not allowed."
+    #     exit 1
+
+    # - name: Continue with normal operations
+    #   if: github.ref != 'refs/heads/stage'
+    #   run: |
+    #     echo "This is a valid push or pull request on develop."
+
+    # GitHub Actions 러너에 저장소를 체크아웃합니다.
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Install Terraform
+      uses: hashicorp/setup-terraform@v2
+      with:
+        terraform_version: latest
+
+
+    # AWS 리소스를 이용하기 위해서 추가
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v2
+      with:
+        aws-access-key-id: ${{ secrets.TF_DEV_MELLO_AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.TF_DEV_MELLO_AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
+
+    - name: Check and Initialize Terraform Backend
+      run: |
+        #!/bin/bash
+
+        # AWS 리소스 존재 여부를 확인하는 함수들
+        check_bucket_exists() {
+            BUCKET_NAME="$1"
+            output=$(aws s3 ls "s3://$BUCKET_NAME" 2>&1)
+            if echo "$output" | grep -q 'NoSuchBucket'; then
+                echo "false"
+            elif echo "$output" | grep -q 'Access Denied'; then
+                echo "access denied"
+            else
+                echo "true"
+            fi
+        }
+
+        check_dynamodb_exists() {
+            TABLE_NAME="$1"
+            output=$(aws dynamodb describe-table --table-name "$TABLE_NAME" 2>&1)
+            if echo "$output" | grep -q 'ResourceNotFoundException'; then
+                echo "false"
+            elif echo "$output" | grep -q 'AccessDeniedException'; then
+                echo "access denied"
+            else
+                echo "true"
+            fi
+        }
+
+        # Terraform 상태 관리를 위한 S3 버킷과 DynamoDB 테이블 이름
+        S3_BUCKET="mello-terraformstate"
+        DYNAMODB_TABLE="mello-terraform-state"
+
+        # 버킷과 테이블의 존재 여부를 확인
+        BUCKET_EXISTS=$(check_bucket_exists "$S3_BUCKET")
+        DYNAMODB_EXISTS=$(check_dynamodb_exists "$DYNAMODB_TABLE")
+
+        # Terraform 명령을 실행할 디렉터리로 이동
+        if [ -d backend ]; then
+            cd backend
+        else
+            echo "Backend directory does not exist. Exiting..."
+            exit 1
+        fi
+
+        # Terraform 초기화 및 적용
+        if [ "$BUCKET_EXISTS" = "true" ] && [ "$DYNAMODB_EXISTS" = "true" ]; then
+            echo "Both S3 bucket and DynamoDB table exist. Skipping Terraform init."
+        elif [ "$BUCKET_EXISTS" = "access denied" ] || [ "$DYNAMODB_EXISTS" = "access denied" ]; then
+            echo "Access denied when checking resources. Please check your AWS credentials and permissions."
+            exit 1
+        else
+            echo "Initializing Terraform because one or more resources do not exist."
+            terraform init
+            terraform plan
+            terraform apply -auto-approve
+        fi
+
+    # Terraform 실행 계획을 생성합니다.
+    - name: Terraform Plan
+      run: cd terraform_stage; terraform init ; terraform plan -input=false
+
+      # "main" 브랜치로 푸시할 때 Terraform 구성 파일에 따라 인프라를 생성하거나 변경합니다.
+    - name: Terraform Apply
+      run: cd terraform_stage; terraform apply -auto-approve -input=false
+
+  backend_setup:
+    runs-on: ubuntu-latest
+    needs: terraform
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: '1.8.0'
+
+      - name: Terraform Backend Init
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.TF_DEV_MELLO_AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.TF_DEV_MELLO_AWS_SECRET_ACCESS_KEY }}
+        run: |
+          cd terraform_stage; terraform init \
+            -backend-config="region=ap-northeast-2" \
+            -backend-config="bucket=mello-terraform-state" \
+            -backend-config="key=stage/terraform/terraform.tfstate"
+
+  backend_destroy:
+    runs-on: ubuntu-latest
+    needs: backend_setup
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: '1.8.0'
+
+      - name: Confirm Destruction
+        if: ${{ github.event.inputs.confirm_destroy == 'DESTROY' }}
+        run: |
+          echo "Destruction confirmed. Proceeding with Terraform destroy operation."
+
+      - name: Terraform Init for Destroy
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.TF_DEV_MELLO_AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.TF_DEV_MELLO_AWS_SECRET_ACCESS_KEY }}
+        run: |
+          cd terraform_stage; terraform init \
+            -backend-config="region=ap-northeast-2" \
+            -backend-config="bucket=MELLO-terraform-state" \
+            -backend-config="key=stage/terraform/terraform.tfstate"
+
+      - name: Terraform Destroy
+        if: ${{ github.event.inputs.confirm_destroy == 'DESTROY' }}
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.TF_DEV_MELLO_AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.TF_DEV_MELLO_AWS_SECRET_ACCESS_KEY }}
+        run: |
+          cd terraform_stage; terraform destroy -auto-approve
