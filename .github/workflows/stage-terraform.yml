@@ -160,7 +160,7 @@ jobs:
         with:
           terraform_version: '1.8.0'
 
-      - name: Confirm Destruction
+      - name: Confirm Destruction # 실행 X
         if: ${{ github.event.inputs.confirm_destroy == 'DESTROY' }}
         run: |
           echo "Destruction confirmed. Proceeding with Terraform destroy operation."
@@ -175,10 +175,15 @@ jobs:
             -backend-config="bucket=mello-terraform-state" \
             -backend-config="key=stage/terraform/terraform.tfstate"
 
-      - name: Terraform Destroy
+      - name: Terraform Destroy # 실행 X
         if: ${{ github.event.inputs.confirm_destroy == 'DESTROY' }}
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.TF_DEV_MELLO_AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.TF_DEV_MELLO_AWS_SECRET_ACCESS_KEY }}
         run: |
           cd terraform_stage; terraform destroy -auto-approve
+
+      - name: Terraform Check State
+        run: |
+          terraform state list
+          echo "Terraform state check complete."
