@@ -184,6 +184,9 @@ jobs:
           cd terraform_stage; terraform destroy -auto-approve
 
       - name: Terraform Check State
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.TF_DEV_MELLO_AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.TF_DEV_MELLO_AWS_SECRET_ACCESS_KEY }}
         run: |
           cd terraform_stage; terraform state list
           echo "Terraform state check complete."
