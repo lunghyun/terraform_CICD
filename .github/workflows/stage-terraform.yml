@@ -185,5 +185,5 @@ jobs:
 
       - name: Terraform Check State
         run: |
-          terraform state list
+          cd terraform_stage; terraform state list
           echo "Terraform state check complete."
