@@ -175,6 +175,14 @@ jobs:
             -backend-config="region=ap-northeast-2" \
             -backend-config="bucket=mello-terraform-state" \
             -backend-config="key=stage/terraform/terraform.tfstate"
+            
+      - name: Terraform Check State
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.TF_DEV_MELLO_AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.TF_DEV_MELLO_AWS_SECRET_ACCESS_KEY }}
+        run: |
+          cd terraform_stage; terraform state list; terraform plan -destroy
+          echo "Terraform state check complete."
 
       - name: Terraform Destroy # 실행 X
         if: ${{ github.event.inputs.confirm_destroy == 'DESTROY' }}
@@ -183,11 +191,3 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.TF_DEV_MELLO_AWS_SECRET_ACCESS_KEY }}
         run: |
           cd terraform_stage; terraform destroy -auto-approve
-
-      - name: Terraform Check State
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.TF_DEV_MELLO_AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.TF_DEV_MELLO_AWS_SECRET_ACCESS_KEY }}
-        run: |
-          cd terraform_stage; terraform state list; terraform plan -destroy
-          echo "Terraform state check complete."
