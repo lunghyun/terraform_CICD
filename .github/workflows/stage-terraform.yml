@@ -181,7 +181,7 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.TF_DEV_MELLO_AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.TF_DEV_MELLO_AWS_SECRET_ACCESS_KEY }}
         run: |
-          cd terraform_stage; terraform plan -destroy
+          cd terraform_stage; terraform plan -destroy -lock=false
           echo "Terraform state check complete."
 
       - name: Terraform Destroy # 실행 X
