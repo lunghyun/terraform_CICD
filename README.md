@@ -33,3 +33,12 @@
             - 주요키로 사용할 속성 설정
         - attribute
             - S타입, 즉 스트링 타입의 Lock 키 저장
+
+
+## 트러블 슈팅
+### 1. .tfstate가 저장된 버킷의 경로가 맞지 않음
+![alt text](imgs/s3.key.png)
+- s3의 키 경로와 workflow의 init 경로가 맞지 않아 리소스가 삭제되지 않음.
+    - stage/*/tfstate -> 리소스 비워져있음
+    - dev/*/tfstate -> 생성된 리소스 상태가 저장되어있음
+- 따라서 s3.key의 dev/* 경로를 stage/* 경로로 변경
