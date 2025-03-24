@@ -17,7 +17,7 @@ module "vpc" {
   stage       = var.stage
   servicename = var.servicename
   tags        = var.tags
-  # region     = var.region
+  # region     = var.region 
   # kms_arn = var.s3_kms_key_id
 
   vpc_ip_range = var.vpc_ip_range
