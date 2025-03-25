@@ -23,7 +23,7 @@ resource "aws_vpc" "aws-vpc" {
 resource "aws_subnet" "public-az1" {
   vpc_id                  = aws_vpc.aws-vpc.id
   cidr_block              = var.subnet_public_az1
-  map_public_ip_on_launch = false
+  map_public_ip_on_launch = true # 퍼블릭 IP 할당
   availability_zone       = element(var.az, 0)
   tags = merge(tomap({
          Name = "aws-subnet-${var.stage}-${var.servicename}-pub-az1"}), 
@@ -35,7 +35,7 @@ resource "aws_subnet" "public-az1" {
 resource "aws_subnet" "public-az2" {
   vpc_id                  = aws_vpc.aws-vpc.id
   cidr_block              = var.subnet_public_az2
-  map_public_ip_on_launch = false
+  map_public_ip_on_launch = true # 퍼블릭 IP
   availability_zone       = element(var.az, 1)
   tags = merge(tomap({
          Name = "aws-subnet-${var.stage}-${var.servicename}-pub-az2"}), 
@@ -151,6 +151,10 @@ resource "aws_route_table" "aws-rt-pub" {
   tags = merge(tomap({
          Name = "aws-rt-${var.stage}-${var.servicename}-pub"}), 
         var.tags)
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.vpc-igw.id
+  }
 }
 
 #resource "aws_route" "route-to-ext-data" {

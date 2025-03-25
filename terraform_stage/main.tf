@@ -42,6 +42,25 @@ module "vpc" {
   #security_attachments_propagation = merge(var.security_attachments_propagation, var.security_attachments)
 }
 
+# module "vpc_list" {
+#   for_each = tosest([for env in var.envs : env if env != ""])
+#   source = "../modules/vpc"
+
+#   stage = each.key
+#   servicename = var.servicename
+#   tags        = var.tags
+
+#   vpc_ip_range = var.vpc_ip_range
+#   az           = var.az
+
+#   subnet_public_az1 = var.subnet_public_az1
+#   subnet_public_az2 = var.subnet_public_az2
+#   subnet_service_az1 = var.subnet_service_az1
+#   subnet_service_az2 = var.subnet_service_az2
+#   subnet_db_az1  = var.subnet_db_az1
+#   subnet_db_az2  = var.subnet_db_az2
+# }
+
 # module "mello-ec2" {
 #   source              = "../modules/instance"
 
