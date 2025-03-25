@@ -141,3 +141,23 @@ variable "my_ip" {
     type = string
     default = "0.0.0.0/0"
 }
+
+variable "vpc_id" {
+  type = string
+}
+
+variable "subnet_service_az1_id" {
+  type = string
+}
+
+variable "subnet_service_az2_id" {
+  type = string
+}
+
+variable "subnet_service_az1_cidr" {
+  type = string
+}
+
+variable "subnet_service_az2_cidr" {
+  type = string
+}

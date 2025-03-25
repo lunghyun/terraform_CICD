@@ -50,6 +50,12 @@ module "alb" {
 
   server_port = var.server_port
   my_ip = var.my_ip
+
+  vpc_id = module.vpc.vpc_id
+  subnet_service_az1_id = module.vpc.subnet_service_az1.id
+  subnet_service_az2_id = module.vpc.subnet_service_az2.id
+  subnet_service_az1_cidr = var.subnet_service_az1
+  subnet_service_az2_cidr = var.subnet_service_az2
 }
 
 # module "vpc_list" {

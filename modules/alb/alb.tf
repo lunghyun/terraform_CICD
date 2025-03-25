@@ -1,14 +1,13 @@
-# 보안그룹 생성
 resource "aws_security_group" "webserver_sg" {
     name = "aws-asg-${var.stage}-${var.servicename}"
-    vpc_id = aws_vpc.aws-vpc.id
+    vpc_id = var.vpc_id
 
     ingress {
         from_port = var.server_port
         to_port = var.server_port
         protocol = "tcp"
         # *** 다시 확인 ***
-        cidr_blocks = [ aws_subnet.service-az1.cidr_block, aws_subnet.service-az2.cidr_block ]
+        cidr_blocks = [ var.subnet_service_az1_cidr, var.subnet_service_az2_cidr ]
     }
     # egress는 nat gateway를 통해 외부로 나가기 때문에 모든 트래픽을 허용
     egress {
@@ -39,7 +38,7 @@ resource "aws_launch_template" "webserver_template" {
 # autoscaling group 생성
 resource "aws_autoscaling_group" "webserver_asg" {
     # *** 다시 확인 ***
-    vpc_zone_identifier = [ aws_subnet.service-az1.id, aws_subnet.service-az2.id ]
+    vpc_zone_identifier = [ var.subnet_service_az1_id, var.subnet_service_az2_id ]
     health_check_type = "ELB" # 헬스 체크 타입
     target_group_arns = [aws_lb_target_group.target_asg.arn] # 타겟 그룹 아이디
     
@@ -51,14 +50,14 @@ resource "aws_autoscaling_group" "webserver_asg" {
       version = "$Latest"
     }
     # *** 다시 확인 ***
-    depends_on = [ aws_vpc.aws-vpc, aws_subnet.service-az1, aws_subnet.service-az2 ]
+    depends_on = [ aws_launch_template.webserver_template, aws_lb_target_group.target_asg ]
 }
 
 # alb 보안 그룹 생성
 resource "aws_security_group" "alb_sg" {
     name = "aws-alb-sg-${var.stage}-${var.servicename}"
     # *** 다시 확인 ***
-    vpc_id = aws_vpc.aws-vpc.id
+    vpc_id = var.vpc_id
 
     # 외부에서 접속 가능이어야 하므로 모든 트래픽을 허용
     ingress {
@@ -82,7 +81,7 @@ resource "aws_lb" "webserver_alb" {
 
     load_balancer_type = "application"
     # *** 다시 확인 ***
-    subnets = [ aws_subnet.service-az1.id, aws_subnet.service-az2.id ]
+    subnets = [ var.subnet_service_az1_id, var.subnet_service_az2_id ]
     security_groups = [ aws_security_group.alb_sg.id ]
 }
 
@@ -92,7 +91,7 @@ resource "aws_lb_target_group" "target_asg" {
     port = var.server_port
     protocol = "HTTP"
     # *** 다시 확인 ***
-    vpc_id = aws_vpc.aws-vpc.id
+    vpc_id = var.vpc_id
 
     health_check {
         path = "/"
