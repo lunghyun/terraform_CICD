@@ -126,7 +126,7 @@ resource "aws_internet_gateway" "vpc-igw" {
 
 # EIP for NAT
 resource "aws_eip" "nat-eip" {
-  vpc = "true"
+  domain = "true"
   depends_on                = [aws_internet_gateway.vpc-igw]
   tags = merge(tomap({
          Name = "aws-eip-${var.stage}-${var.servicename}-nat"}), 
