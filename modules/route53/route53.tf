@@ -4,9 +4,9 @@ data "aws_route53_zone" "primary" {
     private_zone = false
 }
 
-resource "aws_route53_record" "api" {
+resource "aws_route53_record" "primary" {
     zone_id = data.aws_route53_zone.primary.zone_id
-    name = "api.${var.alb_dns_name}"
+    name = var.alb_dns_name
     type = "A"
 
     alias {
