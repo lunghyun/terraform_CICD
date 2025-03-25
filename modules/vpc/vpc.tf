@@ -148,13 +148,14 @@ resource "aws_nat_gateway" "vpc-nat" {
 #routetable
 resource "aws_route_table" "aws-rt-pub" {
   vpc_id = aws_vpc.aws-vpc.id
-  tags = merge(tomap({
-         Name = "aws-rt-${var.stage}-${var.servicename}-pub"}), 
-        var.tags)
   route {
     cidr_block = "0.0.0.0/0"
     gateway_id = aws_internet_gateway.vpc-igw.id
   }
+  
+  tags = merge(tomap({
+         Name = "aws-rt-${var.stage}-${var.servicename}-pub"}), 
+        var.tags)
 }
 
 #resource "aws_route" "route-to-ext-data" {
