@@ -198,7 +198,7 @@ resource "aws_route" "route-to-igw" {
 resource "aws_route_table" "aws-rt-pri" {
   vpc_id = aws_vpc.aws-vpc.id
   tags = merge(tomap({
-         Name = "aws-rt-${var.stage}-${var.servicename}-pri"}), 
+        Name = "aws-rt-${var.stage}-${var.servicename}-pri"}), 
         var.tags)
 }
 
