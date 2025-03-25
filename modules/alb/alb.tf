@@ -116,6 +116,24 @@ resource "aws_lb_listener" "http" {
     }
 }
 
+# certification arn 생성을 위한 data resource
+data "aws_acm_certificate" "cert" {
+    domain = aws_lb.webserver_alb.dns_name
+}
+
+resource "aws_lb_listener" "https" {
+    load_balancer_arn = aws_lb.webserver_alb.arn
+    port = 443
+    protocol = "HTTPS"
+    ssl_policy = "ELBSecurityPolicy-2016-08"
+    certificate_arn = data.aws_acm_certificate.cert.arn
+
+    default_action {
+      type = "forward"
+      target_group_arn = aws_lb_target_group.target_asg.arn
+    }
+}
+
 # listener rule 생성
 resource "aws_lb_listener_rule" "webserver_asg_rule" {
     listener_arn = aws_lb_listener.http.arn

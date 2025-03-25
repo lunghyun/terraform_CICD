@@ -8,7 +8,7 @@ variable "stage" {
 }
 variable "servicename" {
   type = string
-  default = "terraform-mello"
+  default = "terraformmello"
 }
 variable "tags" {
   type = map(string)
@@ -140,6 +140,11 @@ variable "server_port" {
 variable "my_ip" {
     type = string
     default = "0.0.0.0/0"
+}
+
+# route53
+variable "certificate_arn" {
+    type = string
 }
 
 # variable "vpc_id" {

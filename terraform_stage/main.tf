@@ -58,6 +58,12 @@ module "alb" {
   subnet_service_az2_cidr = module.vpc.subnet_service_az2_cidr
 }
 
+module "route53" {
+  source = "../modules/route53"
+  
+  alb_dns_name = module.alb.alb_dns_name
+  alb_zone_id = module.alb.alb_zone_id
+}
 # module "vpc_list" {
 #   for_each = tosest([for env in var.envs : env if env != ""])
 #   source = "../modules/vpc"
