@@ -52,3 +52,23 @@ output "nat_id" {
 output "pri_rt_id" {
   value = aws_route_table.aws-rt-pri.id
 }
+
+output "vpc_id" {
+  value = aws_vpc.main.id
+}
+
+output "subnet_service_az1_id" {
+  value = aws_subnet.service-az1.id
+}
+
+output "subnet_service_az2_id" {
+  value = aws_subnet.service-az2.id
+}
+
+output "subnet_service_az1_cidr" {
+  value = aws_subnet.service-az1.cidr_block
+}
+
+output "subnet_service_az2_cidr" {
+  value = aws_subnet.service-az2.cidr_block
+}
