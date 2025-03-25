@@ -204,7 +204,7 @@ resource "aws_route_table" "aws-rt-pri" {
     cidr_block     = "0.0.0.0/0"
     nat_gateway_id = aws_nat_gateway.vpc-nat.id
   }
-}
+} 
 
 #routetable association
 resource "aws_route_table_association" "public-az1" {
