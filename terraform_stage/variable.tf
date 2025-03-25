@@ -124,3 +124,9 @@ variable "ebs_kms_key_id" {
   type = string
   default = "arn:aws:kms:ap-northeast-2:471112992234:key/43b0228d-0a06-465c-b25c-7480b07b5276"
 }
+
+# envs
+variable "envs" {
+  type = list(string)
+  default = [ "dev", "prod", "" ]
+}
