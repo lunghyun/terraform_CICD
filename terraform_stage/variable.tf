@@ -8,7 +8,7 @@ variable "stage" {
 }
 variable "servicename" {
   type = string
-  default = "terraform_mello"
+  default = "terraform-mello"
 }
 variable "tags" {
   type = map(string)
