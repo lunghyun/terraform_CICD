@@ -130,3 +130,14 @@ variable "envs" {
   type = list(string)
   default = [ "dev", "prod", "" ]
 }
+
+# alb
+variable "server_port" {
+    type = number
+    default = 80
+}
+
+variable "my_ip" {
+    type = string
+    default = "0.0.0.0/0"
+}

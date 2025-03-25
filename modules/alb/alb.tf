@@ -1,149 +1,135 @@
-##ALB
-resource "aws_lb" "alb" {
-  name               = "aws-alb-${var.stage}-${var.servicename}"
-  internal           = var.internal
-  load_balancer_type = "application"
-  security_groups    = [aws_security_group.sg-alb.id]
-  subnets            = var.subnet_ids
+# 보안그룹 생성
+resource "aws_security_group" "webserver_sg" {
+    name = "aws-asg-${var.stage}-${var.servicename}"
+    vpc_id = aws_vpc.aws-vpc.id
 
-  enable_deletion_protection = true
-
-  idle_timeout = var.idle_timeout
-
-  access_logs {
-    bucket  = var.aws_s3_lb_logs_name
-    prefix  = "aws-alb-${var.stage}-${var.servicename}"
-    enabled = true
-  }
-
-  tags = merge(tomap({
-         Name =  "aws-alb-${var.stage}-${var.servicename}"}),
-        var.tags)
-}
-
-
-resource "aws_lb_listener" "lb-listener-443" {
-  load_balancer_arn = aws_lb.alb.arn
-  port              = "443"
-  protocol          = "HTTPS"
-  ssl_policy        = "ELBSecurityPolicy-2016-08"
-  certificate_arn   = var.certificate_arn
-
-  default_action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.target-group.arn
-  }
-  tags = var.tags
-  depends_on =[aws_lb_target_group.target-group]
-}
-
-resource "aws_lb_listener" "lb-listener-80" {
-  load_balancer_arn = aws_lb.alb.arn
-  port              = "80"
-  protocol          = "HTTP"
-
-  default_action {
-    type = "redirect"
-
-    redirect {
-      port        = "443"
-      protocol    = "HTTPS"
-      status_code = "HTTP_301"
+    ingress {
+        from_port = var.server_port
+        to_port = var.server_port
+        protocol = "tcp"
+        # *** 다시 확인 ***
+        cidr_blocks = [ aws_subnet.service-az1.cidr_block, aws_subnet.service-az2.cidr_block ]
     }
-  }
-  tags = var.tags
+    # egress는 nat gateway를 통해 외부로 나가기 때문에 모든 트래픽을 허용
+    egress {
+        from_port = 0
+        to_port = 0
+        protocol = "-1"
+        cidr_blocks = ["0.0.0.0/0"]
+    }
 }
 
-
-resource "aws_lb_target_group" "target-group" {
-  name     = "aws-alb-tg-${var.stage}-${var.servicename}"
-  port     = var.port
-  protocol = "HTTP"
-  vpc_id   = var.vpc_id
-  target_type = var.target_type
-  health_check {
-    path = var.hc_path
-    healthy_threshold   = var.hc_healthy_threshold
-    unhealthy_threshold = var.hc_unhealthy_threshold
-  }
-  tags = merge(tomap({
-         Name =  "aws-alb-tg-${var.stage}-${var.servicename}"}),
-        var.tags)
+# launch template 생성
+resource "aws_launch_template" "webserver_template" {
+    image_id = "ami-027b635eef01a0325"
+    instance_type = "t3.micro"
+    vpc_security_group_ids = [aws_security_group.webserver_sg.id] # 보안그룹은 webserver_sg로 지정
+    
+    user_data = base64encode(<<-EOF
+                #!/bin/bash
+                yum update -y
+                yum install httpd -y
+                systemctl start httpd
+                systemctl enable httpd
+                echo "<h1>hello mello(반갑 멜로 라는 뜻)</h1>" > /var/www/html/index.html
+                EOF
+    ) # user_data를 통해 인스턴스 생성시 실행할 스크립트를 작성
 }
 
-resource "aws_lb_target_group_attachment" "target-group-attachment" {
-  count = length(var.instance_ids)
-  target_group_arn = aws_lb_target_group.target-group.arn
-  target_id        = var.instance_ids[count.index]
-  port             = var.port
-  
-  availability_zone = var.availability_zone
-  
-  depends_on =[aws_lb_target_group.target-group]
+# autoscaling group 생성
+resource "aws_autoscaling_group" "webserver_asg" {
+    # *** 다시 확인 ***
+    vpc_zone_identifier = [ aws_subnet.service-az1.id, aws_subnet.service-az2.id ]
+    health_check_type = "ELB" # 헬스 체크 타입
+    target_group_arns = [aws_lb_target_group.target_asg.arn] # 타겟 그룹 아이디
+    
+    
+    min_size = 3
+    max_size = 5
+    launch_template {
+      id = aws_launch_template.webserver_template.id
+      version = "$Latest"
+    }
+    # *** 다시 확인 ***
+    depends_on = [ aws_vpc.aws-vpc, aws_subnet.service-az1, aws_subnet.service-az2 ]
 }
 
-#alb sg
-resource "aws_security_group" "sg-alb" {
-  name   = "aws-sg-${var.stage}-${var.servicename}-alb"
-  vpc_id = var.vpc_id
+# alb 보안 그룹 생성
+resource "aws_security_group" "alb_sg" {
+    name = "aws-alb-sg-${var.stage}-${var.servicename}"
+    # *** 다시 확인 ***
+    vpc_id = aws_vpc.aws-vpc.id
 
-  ingress {
-    from_port   = 443
-    to_port     = 443
-    protocol    = "TCP"
-    cidr_blocks = var.sg_allow_comm_list
-    description = ""
-    self        = true
-  }
-  ingress {
-    from_port   = 80
-    to_port     = 80
-    protocol    = "TCP"
-    cidr_blocks = var.sg_allow_comm_list
-    description = ""
-  }
+    # 외부에서 접속 가능이어야 하므로 모든 트래픽을 허용
+    ingress {
+        from_port = var.server_port
+        to_port = var.server_port
+        protocol = "tcp"
+        cidr_blocks = [ var.my_ip ]
+    }
 
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-  tags = merge(tomap({
-         Name = "aws-sg-${var.stage}-${var.servicename}-alb"}), 
-        var.tags)
+    egress {
+        from_port = 0
+        to_port = 0
+        protocol = "-1"
+        cidr_blocks = ["0.0.0.0/0"]
+    }
 }
 
-resource "aws_security_group" "sg-alb-to-tg" {
-  name   = "aws-sg-${var.stage}-${var.servicename}-alb-to-tg"
-  vpc_id = var.vpc_id
+# alb 생성
+resource "aws_lb" "webserver_alb" {
+    name = "aws-alb-${var.stage}-${var.servicename}"
 
-  ingress {
-    from_port   = var.port
-    to_port     = var.port
-    protocol    = "TCP"
-    security_groups = [aws_security_group.sg-alb.id]
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-  tags = merge(tomap({
-         Name = "aws-sg-${var.stage}-${var.servicename}-alb-to-tg"}), 
-        var.tags)
+    load_balancer_type = "application"
+    # *** 다시 확인 ***
+    subnets = [ aws_subnet.service-az1.id, aws_subnet.service-az2.id ]
+    security_groups = [ aws_security_group.alb_sg.id ]
 }
 
-resource "aws_route53_record" "alb-record" {
-  count = var.domain != "" ? 1:0
-  zone_id = var.hostzone_id
-  name    = "${var.stage}-${var.servicename}.${var.domain}"
-  type    = "A"
-  alias {
-    name                   = aws_lb.alb.dns_name
-    zone_id                = aws_lb.alb.zone_id
-    evaluate_target_health = true
-  }
+# target group 생성
+resource "aws_lb_target_group" "target_asg" {
+    name = "aws-alb-tg-${var.stage}-${var.servicename}"
+    port = var.server_port
+    protocol = "HTTP"
+    # *** 다시 확인 ***
+    vpc_id = aws_vpc.aws-vpc.id
+
+    health_check {
+        path = "/"
+        protocol = "HTTP"
+        matcher = "200"
+        interval = 15
+        timeout = 3
+        healthy_threshold = 2
+        unhealthy_threshold = 2
+    }
+}
+
+# listener 생성
+resource "aws_lb_listener" "http" {
+    load_balancer_arn = aws_lb.webserver_alb.arn
+    port = var.server_port
+    protocol = "HTTP"
+
+    default_action {
+      type = "forward"
+      target_group_arn = aws_lb_target_group.target_asg.arn
+    }
+}
+
+# listener rule 생성
+resource "aws_lb_listener_rule" "webserver_asg_rule" {
+    listener_arn = aws_lb_listener.http.arn
+    priority = 100
+
+    condition {
+      path_pattern {
+        values = ["*"]
+      }
+    }
+
+    action { # 액션 설정
+      type = "forward" # 포워드
+      target_group_arn = aws_lb_target_group.target_asg.arn # 타겟 그룹 아이디
+    }
 }

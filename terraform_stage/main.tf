@@ -42,6 +42,18 @@ module "vpc" {
   #security_attachments_propagation = merge(var.security_attachments_propagation, var.security_attachments)
 }
 
+module "alb" {
+  source = "../modules/alb"
+
+  stage = var.stage
+  servicename = var.servicename
+
+  server_port = var.server_port
+  alb_security_group_name = var.alb_security_group_name
+  alb_name = var.alb_name
+  my_ip = var.my_ip
+}
+
 # module "vpc_list" {
 #   for_each = tosest([for env in var.envs : env if env != ""])
 #   source = "../modules/vpc"
