@@ -49,8 +49,6 @@ module "alb" {
   servicename = var.servicename
 
   server_port = var.server_port
-  alb_security_group_name = var.alb_security_group_name
-  alb_name = var.alb_name
   my_ip = var.my_ip
 }
 
