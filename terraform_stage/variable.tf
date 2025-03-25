@@ -143,9 +143,6 @@ variable "my_ip" {
 }
 
 # route53
-variable "certificate_arn" {
-    type = string
-}
 
 # variable "vpc_id" {
 #   type = string
