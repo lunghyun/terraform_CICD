@@ -53,10 +53,6 @@ output "pri_rt_id" {
   value = aws_route_table.aws-rt-pri.id
 }
 
-output "vpc_id" {
-  value = aws_vpc.main.id
-}
-
 output "subnet_service_az1_id" {
   value = aws_subnet.service-az1.id
 }
