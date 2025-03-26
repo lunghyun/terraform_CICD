@@ -1,6 +1,6 @@
 # data를 만들어야함
 data "aws_route53_zone" "primary" {
-    name = "hellomello.kro.kr"
+    name = "hellomello.site"
     private_zone = false
 }
 
