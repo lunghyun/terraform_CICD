@@ -68,3 +68,19 @@ output "subnet_service_az1_cidr" {
 output "subnet_service_az2_cidr" {
   value = aws_subnet.service-az2.cidr_block
 }
+
+output "subnet_public_az1_id" {
+  value = aws_subnet.public-az1.id
+}
+
+output "subnet_public_az2_id" {
+  value = aws_subnet.public-az2.id
+}
+
+output "subnet_public_az1_cidr" {
+  value = aws_subnet.public-az1.cidr_block
+}
+
+output "subnet_public_az2_cidr" {
+  value = aws_subnet.public-az2.cidr_block
+}
