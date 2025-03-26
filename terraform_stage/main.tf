@@ -52,6 +52,10 @@ module "alb" {
   my_ip = var.my_ip
 
   vpc_id = module.vpc.vpc_id
+  subnet_public_az1_id = module.vpc.subnet_service_az1_id
+  subnet_public_az2_id = module.vpc.subnet_service_az2_id
+  subnet_public_az1_cidr = module.vpc.subnet_service_az1_cidr
+  subnet_public_az2_cidr = module.vpc.subnet_service_az2_cidr
   subnet_service_az1_id = module.vpc.subnet_service_az1_id
   subnet_service_az2_id = module.vpc.subnet_service_az2_id
   subnet_service_az1_cidr = module.vpc.subnet_service_az1_cidr

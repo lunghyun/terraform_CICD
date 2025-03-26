@@ -97,7 +97,7 @@ resource "aws_lb" "webserver_alb" {
 
     load_balancer_type = "application"
     # *** 다시 확인 ***
-    subnets = [ var.subnet_service_az1_id, var.subnet_service_az2_id ]
+    subnets = [ var.subnet_public_az1_id, var.subnet_public_az2_id ]
     security_groups = [ aws_security_group.alb_sg.id ]
 }
 
