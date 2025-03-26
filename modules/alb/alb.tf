@@ -34,8 +34,7 @@ resource "aws_launch_template" "webserver_template" {
 
     user_data = base64encode(<<-EOF
                                 #!/bin/bash
-                                #!/bin/bash
-                                yum install -y nginx
+                                dnf install -y nginx
                                 systemctl enable nginx
                                 systemctl start nginx
                                 EOF
