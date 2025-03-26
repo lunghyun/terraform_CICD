@@ -34,12 +34,10 @@ resource "aws_launch_template" "webserver_template" {
 
     user_data = base64encode(<<-EOF
                                 #!/bin/bash
-                                yum update -y
-                                amazon-linux-extras enable nginx1
-                                yum install nginx -y
-                                systemctl start nginx
+                                #!/bin/bash
+                                yum install -y nginx
                                 systemctl enable nginx
-                                echo "<h1>hello mello(반갑 멜로 라는 뜻)</h1>" > /usr/share/nginx/html/index.html
+                                systemctl start nginx
                                 EOF
     ) # user_data를 통해 인스턴스 생성시 실행할 스크립트를 작성
 }
