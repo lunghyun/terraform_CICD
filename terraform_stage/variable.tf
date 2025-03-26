@@ -142,6 +142,11 @@ variable "my_ip" {
     default = "0.0.0.0/0"
 }
 
+variable "domain_name" {
+  type = string
+  default = "hellomello.site"
+}
+
 # route53
 
 # variable "vpc_id" {

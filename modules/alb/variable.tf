@@ -33,3 +33,7 @@ variable "subnet_service_az1_cidr" {
 variable "subnet_service_az2_cidr" {
   type = string
 }
+
+variable "domain_name" {
+  type = string
+}

@@ -56,6 +56,7 @@ module "alb" {
   subnet_service_az2_id = module.vpc.subnet_service_az2_id
   subnet_service_az1_cidr = module.vpc.subnet_service_az1_cidr
   subnet_service_az2_cidr = module.vpc.subnet_service_az2_cidr
+  domain_name = var.domain_name
 }
 
 module "route53" {

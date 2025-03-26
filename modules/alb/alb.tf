@@ -118,7 +118,9 @@ resource "aws_lb_listener" "http" {
 
 # certification arn 생성을 위한 data resource
 data "aws_acm_certificate" "cert" {
-    domain = aws_lb.webserver_alb.dns_name
+  domain       = var.domain_name # 도메인 이름
+  statuses     = ["ISSUED"] # 발급된 상태인 것만 가져옴
+  most_recent  = true # 가장 최근에 발급된 것만 가져옴
 }
 
 resource "aws_lb_listener" "https" {
