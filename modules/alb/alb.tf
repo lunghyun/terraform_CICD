@@ -107,7 +107,7 @@ resource "random_id" "tg_suffix" {
 
 # target group 생성
 resource "aws_lb_target_group" "target_asg" {
-    name = "aws-alb-tg-${var.stage}-${var.servicename}-${random_id.tg_suffix.hex}"
+    name = "tg-${var.stage}-${var.servicename}-${random_id.tg_suffix.hex}"
     port = var.server_port
     protocol = "HTTPS"
     # *** 다시 확인 ***
