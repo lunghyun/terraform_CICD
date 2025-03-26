@@ -27,17 +27,18 @@ resource "aws_security_group" "webserver_sg" {
 
 # launch template 생성
 resource "aws_launch_template" "webserver_template" {
-    image_id = "ami-027b635eef01a0325" # Amazon Linux 2 AMI
+    image_id = "ami-062cddb9d94dcf95d" # Amazon Linux 2023 AMI
     instance_type = "t3.micro"
     vpc_security_group_ids = [aws_security_group.webserver_sg.id] # 보안그룹은 webserver_sg로 지정
     
     user_data = base64encode(<<-EOF
                                 #!/bin/bash
                                 yum update -y
-                                yum install httpd -y
-                                systemctl start httpd
-                                systemctl enable httpd
-                                echo "<h1>hello mello(반갑 멜로 라는 뜻)</h1>" > /var/www/html/index.html
+                                amazon-linux-extras enable nginx1
+                                yum install nginx -y
+                                systemctl start nginx
+                                systemctl enable nginx
+                                echo "<h1>hello mello(반갑 멜로 라는 뜻)</h1>" > /usr/share/nginx/html/index.html
                                 EOF
     ) # user_data를 통해 인스턴스 생성시 실행할 스크립트를 작성
 }
