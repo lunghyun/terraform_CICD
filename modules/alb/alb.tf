@@ -27,33 +27,18 @@ resource "aws_security_group" "webserver_sg" {
 
 # launch template 생성
 resource "aws_launch_template" "webserver_template" {
-    image_id = "ami-027b635eef01a0325"
+    image_id = "ami-027b635eef01a0325" # Amazon Linux 2 AMI
     instance_type = "t3.micro"
     vpc_security_group_ids = [aws_security_group.webserver_sg.id] # 보안그룹은 webserver_sg로 지정
     
     user_data = base64encode(<<-EOF
-                #!/bin/bash
-                yum update -y
-                yum install httpd -y
-
-                # SSL 인증서 및 키 생성 (자체 서명, 실습용)
-                mkdir -p /etc/httpd/ssl
-                openssl req -x509 -nodes -days 365 \
-                    -subj "/C=KR/ST=Seoul/L=Seoul/O=Dev/OU=Dev/CN=localhost" \
-                    -newkey rsa:2048 \
-                    -keyout /etc/httpd/ssl/selfsigned.key \
-                    -out /etc/httpd/ssl/selfsigned.crt
-
-                # ssl.conf 수정: 기본 경로를 우리가 만든 키/인증서로 바꾸기
-                sed -i 's|^SSLCertificateFile.*|SSLCertificateFile /etc/httpd/ssl/selfsigned.crt|' /etc/httpd/conf.d/ssl.conf
-                sed -i 's|^SSLCertificateKeyFile.*|SSLCertificateKeyFile /etc/httpd/ssl/selfsigned.key|' /etc/httpd/conf.d/ssl.conf
-
-                echo "<h1>Hello Mello - HTTPS is working!</h1>" > /var/www/html/index.html
-                
-                systemctl start httpd
-                systemctl enable httpd
-                systemctl restart httpd
-                EOF
+                                #!/bin/bash
+                                yum update -y
+                                yum install httpd -y
+                                systemctl start httpd
+                                systemctl enable httpd
+                                echo "<h1>hello mello(반갑 멜로 라는 뜻)</h1>" > /var/www/html/index.html
+                                EOF
     ) # user_data를 통해 인스턴스 생성시 실행할 스크립트를 작성
 }
 
