@@ -9,6 +9,13 @@ resource "aws_security_group" "webserver_sg" {
         # *** 다시 확인 ***
         cidr_blocks = [ var.subnet_service_az1_cidr, var.subnet_service_az2_cidr ]
     }
+    ingress {
+        from_port = 443
+        to_port = 443
+        protocol = "tcp"
+        cidr_blocks = [ var.subnet_service_az1_cidr, var.subnet_service_az2_cidr ]
+    }
+
     # egress는 nat gateway를 통해 외부로 나가기 때문에 모든 트래픽을 허용
     egress {
         from_port = 0
@@ -63,6 +70,13 @@ resource "aws_security_group" "alb_sg" {
     ingress {
         from_port = var.server_port
         to_port = var.server_port
+        protocol = "tcp"
+        cidr_blocks = [ var.my_ip ]
+    }
+
+    ingress {
+        from_port = 443
+        to_port = 443
         protocol = "tcp"
         cidr_blocks = [ var.my_ip ]
     }
