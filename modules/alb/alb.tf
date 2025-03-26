@@ -87,16 +87,16 @@ resource "aws_lb" "webserver_alb" {
     security_groups = [ aws_security_group.alb_sg.id ]
 }
 
-# # random id 생성
-# resource "random_id" "tg_suffix" {
-#   byte_length = 4
-# }
+# random id 생성
+resource "random_id" "tg_suffix" {
+  byte_length = 4
+}
 
 
 # target group 생성
 resource "aws_lb_target_group" "target_asg" {
-    # name = "tg-${var.stage}-${var.servicename}-${random_id.tg_suffix.hex}"
-    name = "tg-${var.stage}-${var.servicename}"
+    name = "tg-${var.stage}-${var.servicename}-${random_id.tg_suffix.hex}"
+    # name = "tg-${var.stage}-${var.servicename}"
     port = var.server_port
     protocol = "HTTP"
     # *** 다시 확인 ***
@@ -111,10 +111,6 @@ resource "aws_lb_target_group" "target_asg" {
         healthy_threshold   = 2
         unhealthy_threshold = 5
     }
-
-    lifecycle {
-        create_before_destroy = true
-    }
 }
 
 # listener 생성
@@ -127,8 +123,6 @@ resource "aws_lb_listener" "http" {
       type = "forward"
       target_group_arn = aws_lb_target_group.target_asg.arn
     }
-
-    depends_on = [ aws_lb_target_group.target_asg ]
 }
 
 # certification arn 생성을 위한 data resource
