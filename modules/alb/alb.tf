@@ -101,7 +101,7 @@ resource "aws_lb" "webserver_alb" {
 
 # target group 생성
 resource "aws_lb_target_group" "target_asg" {
-    name = "aws-alb-tg-${var.stage}-${var.servicename}"
+    name_prefix = "aws-alb-tg-${var.stage}-${var.servicename}-"
     port = var.server_port
     protocol = "HTTPS"
     # *** 다시 확인 ***
