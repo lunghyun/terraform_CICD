@@ -116,6 +116,10 @@ resource "aws_lb_target_group" "target_asg" {
         healthy_threshold = 2
         unhealthy_threshold = 2
     }
+
+    lifecycle {
+        create_before_destroy = true
+    }
 }
 
 # listener 생성
@@ -128,6 +132,8 @@ resource "aws_lb_listener" "http" {
       type = "forward"
       target_group_arn = aws_lb_target_group.target_asg.arn
     }
+
+    depends_on = [ aws_lb_target_group.target_asg ]
 }
 
 # certification arn 생성을 위한 data resource
@@ -148,6 +154,8 @@ resource "aws_lb_listener" "https" {
       type = "forward"
       target_group_arn = aws_lb_target_group.target_asg.arn
     }
+
+    depends_on = [ aws_lb_target_group.target_asg ]
 }
 
 # listener rule 생성
