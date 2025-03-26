@@ -93,7 +93,7 @@ resource "aws_security_group" "alb_sg" {
         from_port = 443
         to_port = 443
         protocol = "tcp"
-        cidr_blocks = [ asw_security_group.alb_sg.id ]
+        cidr_blocks = [ aws_security_group.alb_sg.id ]
     }
 
     egress {
