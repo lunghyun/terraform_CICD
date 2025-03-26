@@ -9,12 +9,6 @@ resource "aws_security_group" "webserver_sg" {
         # *** 다시 확인 ***
         cidr_blocks = [ var.subnet_service_az1_cidr, var.subnet_service_az2_cidr ]
     }
-    ingress {
-        from_port = 443
-        to_port = 443
-        protocol = "tcp"
-        cidr_blocks = [ var.subnet_service_az1_cidr, var.subnet_service_az2_cidr ]
-    }
 
     # egress는 nat gateway를 통해 외부로 나가기 때문에 모든 트래픽을 허용
     egress {
@@ -75,13 +69,6 @@ resource "aws_security_group" "alb_sg" {
         cidr_blocks = [ var.my_ip ]
     }
 
-    ingress {
-        from_port = 443
-        to_port = 443
-        protocol = "tcp"
-        security_groups = [aws_security_group.webserver_sg.id]
-    }
-
     egress {
         from_port = 0
         to_port = 0
@@ -110,14 +97,14 @@ resource "aws_lb" "webserver_alb" {
 resource "aws_lb_target_group" "target_asg" {
     # name = "tg-${var.stage}-${var.servicename}-${random_id.tg_suffix.hex}"
     name = "tg-${var.stage}-${var.servicename}"
-    port = 443
-    protocol = "HTTPS"
+    port = var.server_port
+    protocol = "HTTP"
     # *** 다시 확인 ***
     vpc_id = var.vpc_id
 
     health_check {
         path                = "/"
-        protocol            = "HTTPS"
+        protocol            = "HTTP"
         matcher             = "200"
         interval            = 30
         timeout             = 5
@@ -151,24 +138,9 @@ data "aws_acm_certificate" "cert" {
   most_recent  = true # 가장 최근에 발급된 것만 가져옴
 }
 
-resource "aws_lb_listener" "https" {
-    load_balancer_arn = aws_lb.webserver_alb.arn
-    port = 443
-    protocol = "HTTPS"
-    ssl_policy = "ELBSecurityPolicy-2016-08"
-    certificate_arn = data.aws_acm_certificate.cert.arn
-
-    default_action {
-      type = "forward"
-      target_group_arn = aws_lb_target_group.target_asg.arn
-    }
-
-    depends_on = [ aws_lb_target_group.target_asg ]
-}
-
 # listener rule 생성
 resource "aws_lb_listener_rule" "webserver_asg_rule" {
-    listener_arn = aws_lb_listener.https.arn
+    listener_arn = aws_lb_listener.http.arn
     priority = 100
 
     condition {
