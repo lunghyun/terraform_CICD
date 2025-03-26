@@ -103,13 +103,13 @@ resource "aws_lb" "webserver_alb" {
 resource "aws_lb_target_group" "target_asg" {
     name = "aws-alb-tg-${var.stage}-${var.servicename}"
     port = var.server_port
-    protocol = "HTTP"
+    protocol = "HTTPS"
     # *** 다시 확인 ***
     vpc_id = var.vpc_id
 
     health_check {
         path = "/"
-        protocol = "HTTP"
+        protocol = "HTTPS"
         matcher = "200"
         interval = 15
         timeout = 3
