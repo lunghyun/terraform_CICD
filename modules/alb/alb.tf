@@ -31,7 +31,7 @@ resource "aws_launch_template" "webserver_template" {
     image_id = "ami-062cddb9d94dcf95d" # Amazon Linux 2023 AMI
     instance_type = "t3.micro"
     vpc_security_group_ids = [aws_security_group.webserver_sg.id] # 보안그룹은 webserver_sg로 지정
-    
+
     user_data = base64encode(<<-EOF
                                 #!/bin/bash
                                 yum update -y
