@@ -166,7 +166,7 @@ resource "aws_lb_listener" "https" {
 
 # listener rule 생성
 resource "aws_lb_listener_rule" "webserver_asg_rule" {
-    listener_arn = aws_lb_listener.http.arn
+    listener_arn = aws_lb_listener.https.arn
     priority = 100
 
     condition {
