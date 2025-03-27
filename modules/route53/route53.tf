@@ -14,4 +14,4 @@ resource "aws_route53_record" "primary" {
         zone_id = var.alb_zone_id
         evaluate_target_health = true # health check
     }
-}
+} 
