@@ -6,8 +6,8 @@ resource "aws_security_group" "webserver_sg" {
         from_port = var.server_port
         to_port = var.server_port
         protocol = "tcp"
-        # *** 다시 확인 ***
-        cidr_blocks = [ var.subnet_service_az1_cidr, var.subnet_service_az2_cidr ]
+        # cidr_blocks = [ var.subnet_service_az1_cidr, var.subnet_service_az2_cidr ]
+        security_groups = [ aws_security_group.alb_sg.id ]
     }
 
     ingress {
