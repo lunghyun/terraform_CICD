@@ -144,7 +144,7 @@ variable "my_ip" {
 
 variable "domain_name" {
   type = string
-  default = "*.hellomello.site"
+  default = "hellomello.site"
 }
 
 # route53

@@ -60,7 +60,7 @@ module "alb" {
   subnet_service_az2_id = module.vpc.subnet_service_az2_id
   subnet_service_az1_cidr = module.vpc.subnet_service_az1_cidr
   subnet_service_az2_cidr = module.vpc.subnet_service_az2_cidr
-  domain_name = var.domain_name
+  domain_name = "*.${var.domain_name}"
 }
 
 module "route53" {
@@ -69,6 +69,16 @@ module "route53" {
   alb_dns_name = module.alb.alb_dns_name
   alb_zone_id = module.alb.alb_zone_id
 }
+
+module "frontend" {
+  source = "../modules/s3"
+
+  bucket_name   = var.domain_name
+  domain_name   = var.domain_name
+  zone_id       = data.aws_route53_zone.primary.zone_id
+  acm_cert_arn  = data.aws_acm_certificate.cert.arn
+}
+
 # module "vpc_list" {
 #   for_each = tosest([for env in var.envs : env if env != ""])
 #   source = "../modules/vpc"
