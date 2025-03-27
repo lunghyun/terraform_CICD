@@ -10,6 +10,17 @@ terraform {
   }
 }
 
+data "aws_acm_certificate" "cert" {
+  domain       = var.domain_name # 도메인 이름
+  statuses     = ["ISSUED"] # 발급된 상태인 것만 가져옴
+  most_recent  = true # 가장 최근에 발급된 것만 가져옴
+}
+
+data "aws_route53_zone" "primary" {
+    name = var.domain_name
+    private_zone = false
+}
+
 ##Sharedservic resources
 module "vpc" {
   source              = "../modules/vpc"
