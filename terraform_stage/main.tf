@@ -11,7 +11,7 @@ terraform {
 }
 
 data "aws_acm_certificate" "cert" {
-  domain       = var.domain_name # 도메인 이름
+  domain       = "*.${var.domain_name}" # 도메인 이름
   statuses     = ["ISSUED"] # 발급된 상태인 것만 가져옴
   most_recent  = true # 가장 최근에 발급된 것만 가져옴
 }
