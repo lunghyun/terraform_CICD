@@ -152,7 +152,7 @@ variable "domain_name" {
 # frontend
 variable "acm_cert_arn" {
   type = string
-  default = "arn:aws:acm:us-east-1:448049822514:certificate/244af5eb-dee5-4106-8496-c32d2f926736"
+  default = "arn:aws:acm:us-east-1:448049822514:certificate/62b42b24-cc91-472d-8e09-f8e5f172d702"
 }
 
 # variable "vpc_id" {
