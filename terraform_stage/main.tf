@@ -87,7 +87,7 @@ module "frontend" {
   bucket_name   = var.domain_name
   domain_name   = var.domain_name
   zone_id       = data.aws_route53_zone.primary.zone_id
-  acm_cert_arn  = data.aws_acm_certificate.cert.arn
+  acm_cert_arn  = var.acm_cert_arn
 }
 
 # module "vpc_list" {

@@ -149,6 +149,12 @@ variable "domain_name" {
 
 # route53
 
+# frontend
+variable "acm_cert_arn" {
+  type = string
+  default = "arn:aws:acm:us-east-1:448049822514:certificate/244af5eb-dee5-4106-8496-c32d2f926736"
+}
+
 # variable "vpc_id" {
 #   type = string
 # }
